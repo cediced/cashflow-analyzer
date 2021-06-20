@@ -15,9 +15,13 @@ class CalculateCashflow:
     def __init__(self, transactions):
         self.transactions = transactions
         self.errors = defaultdict(list)
+        self.cashflow = 0
 
     def execute(self):
         self.validate_transactions()
+        if len(self.errors) != 0:
+            raise ValueError()
+        self.cashflow = self.transactions["amounts"].sum()
 
     def validate_transactions(self):
         if not isinstance(self.transactions, pd.DataFrame):
@@ -29,5 +33,3 @@ class CalculateCashflow:
             if column not in TRANSACTION.informations:
                 self.errors["wrong_columns_information"].append(column)
             return
-
-
