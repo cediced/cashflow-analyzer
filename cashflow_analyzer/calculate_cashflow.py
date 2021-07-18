@@ -1,3 +1,7 @@
+"""
+calculate the cashflow (difference entrance and lost for every month)
+"""
+
 import pandas as pd
 
 
@@ -17,14 +21,5 @@ def calculate_cashflow_every_month(data):
 
     summed["years"] = [group[0] for group in grouped.groups.keys()]
     summed["months"] = [group[1] for group in grouped.groups.keys()]
+    summed.reset_index(drop=True, inplace=True)
     return summed
-
-
-if __name__ == "__main__":
-    PATH_DATA = r"../data/20210613-101728580-umsatz (1).CSV"
-
-    data = get_data(PATH_DATA)
-    data = pd.DataFrame(
-        {"Buchungstag": ['01.01.18', '02.01.18', '04.05.18', '15.05.18', '04.02.19', '18.06.19', '20.06.19'],
-         "Betrag": ["100", "200", "300,5", "-100", "10,75", "-5", "10"]})
-    print(calculate_cashflow_every_month(filter_columns(data)))
