@@ -25,7 +25,19 @@ def calculate_cashflow_every_month(data):
 
 
 def get_grouped_revenus_every_year(data):
-    return get_grouped_transactions_by_year("revenus", data)
+    return Revenus(data).get_grouped_by_year()
+
+
+def get_revenus_each_year(data):
+    return Revenus(data).get_transactions_by_year()
+
+
+def get_grouped_expenses_every_year(data):
+    return Expenses(data).get_grouped_by_year()
+
+
+def get_expenses_each_year(data):
+    return get_transactions_by_year("expenses", data)
 
 
 def get_grouped_transactions_by_year(type_of_transaction, data):
@@ -44,10 +56,6 @@ def get_grouped_transactions_by_year(type_of_transaction, data):
     return data.groupby(by=[data.index.year, payer]).sum().reset_index()
 
 
-def get_revenus_each_year(data):
-    return get_transactions_by_year("revenus", data)
-
-
 def get_transactions_by_year(type_of_transaction, data):
     day = SCHEMA["day"]
     amount = SCHEMA["amount"]
@@ -55,17 +63,33 @@ def get_transactions_by_year(type_of_transaction, data):
     data.index = pd.to_datetime(data[SCHEMA["day"]], format='%d.%m.%y')
     data[amount] = data[amount].str.replace(",", ".").astype(float)
 
-    if type_of_transaction == "revenus":
-        data = data[data[amount] > 0]
-    else:
-        data = data[data[amount] < 0]
+    data = filter_transaction(type_of_transaction, amount, data)
 
     return data.groupby(by=[data.index.year]).sum().reset_index()
 
 
-def get_grouped_expenses_every_month(data):
-    return get_grouped_transactions_by_year("expenses", data)
+def filter_transaction(type_of_transaction, amount_col_name, data):
+    if type_of_transaction == "revenus":
+        data = data[data[amount_col_name] > 0]
+    else:
+        data = data[data[amount_col_name] < 0]
+    return data
 
 
-def get_expenses_each_year(data):
-    return get_transactions_by_year("expenses", data)
+class Revenus:
+    def __init__(self, data):
+        self.data = data
+
+    def get_grouped_by_year(self):
+        return get_grouped_transactions_by_year("revenus", self.data)
+
+    def get_transactions_by_year(self):
+        return get_transactions_by_year("revenus", self.data)
+
+
+class Expenses:
+    def __init__(self, data):
+        self.data = data
+
+    def get_grouped_by_year(self):
+        return get_grouped_transactions_by_year("expenses", self.data)

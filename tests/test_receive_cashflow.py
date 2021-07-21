@@ -49,7 +49,7 @@ def test_retrieve_all_the_expenses_by_year():
     result = {'Buchungstag': [2018, 2019, 2019],
               'Beguenstigter/Zahlungspflichtiger': ['Supermarkt', 'Supermarkt', 'travel'],
               'Betrag': [-100.0, -30.0, -225.0]}
-    assert result == sut.get_grouped_expenses_every_month(transactions).to_dict('list')
+    assert result == sut.get_grouped_expenses_every_year(transactions).to_dict('list')
 
 
 def test_get_the_expenses_for_each_year():

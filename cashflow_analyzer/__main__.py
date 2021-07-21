@@ -15,5 +15,5 @@ if __name__ == "__main__":
     print(get_revenus_each_year(data.copy()))
 
     print("expenses:")
-    print(get_grouped_expenses_every_month(data))
+    print(get_grouped_expenses_every_year(data))
     print(get_expenses_each_year(data.copy()))
