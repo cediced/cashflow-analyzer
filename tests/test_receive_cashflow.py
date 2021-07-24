@@ -17,7 +17,8 @@ PAYER = sut.SCHEMA["payer"]
 def test_calculate_cashflow_for_every_month(transactions_creator):
     transactions = pd.DataFrame(
         {DAY: ['01.01.18', '02.01.18', '04.05.18', '15.05.18', '04.02.19', '18.06.19', '20.06.19'],
-         AMOUNT: ["100", "200", "300,5", "-100", "10,75", "-5", "10"]})
+         AMOUNT: ["100", "200", "300,5", "-100", "10,75", "-5", "10"],
+         "not_important_column": [1, 2, 3, 4, 5, 6, 7]})
 
     result = {AMOUNT: [300.0, 200.5, 10.75, 5.0],
               'years': [2018, 2018, 2019, 2019],

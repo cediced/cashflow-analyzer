@@ -35,8 +35,9 @@ class Transactions(ABC):
 
     def monthly_cashflow(self):
         data = self.data.copy()
+        data = data[[self.amount, self.day]]
         data.index = pd.to_datetime(data[self.day], format='%d.%m.%y')
-        data[SCHEMA["amount"]] = data[self.amount].str.replace(",", ".").astype(float)
+        data[self.amount] = data[self.amount].str.replace(",", ".").astype(float)
 
         data = self.filter_transactions(data)
 
@@ -82,3 +83,9 @@ def create_transactions(type, data) -> Transactions:
 
 class NotDefinedTransactionTypeError(Exception):
     pass
+
+
+class CashflowAnalyser:
+    def __init__(self, transaction_type, step):
+        self.transaction_type = transaction_type
+        self.step = step
