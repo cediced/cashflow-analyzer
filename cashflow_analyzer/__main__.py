@@ -12,6 +12,6 @@ if __name__ == "__main__":
 
         if transaction_type in transactions:
             transaction = create_transactions(transaction_type, data)
-            print(transaction.monthly_cashflow())
+            print(transaction.sum_by_year())
         else:
             print(f"{transaction_type} is not {transactions}")

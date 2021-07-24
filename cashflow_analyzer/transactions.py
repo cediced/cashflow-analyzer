@@ -17,23 +17,32 @@ class Transactions(ABC):
     def filter_transactions(self, data):
         return data
 
-    def get_grouped_by_year(self):
+    def sum_by_year_grouped(self):
         data = self.data[[self.day, self.amount, self.payer]]
         data = self.process_data(data)
         return data.groupby(by=[data.index.year, self.payer]).sum().reset_index()
 
-    def get_transactions_by_year(self):
+    def sum_by_year(self):
         data = self.data[[self.day, self.amount]]
         data = self.process_data(data)
-        return data.groupby(by=[data.index.year]).sum().reset_index()
-
-    def process_data(self, data):
-        data.index = pd.to_datetime(data[self.day], format='%d.%m.%y')
-        data[self.amount] = data[self.amount].str.replace(",", ".").astype(float)
-        data = self.filter_transactions(data)
+        data = data.groupby(by=[data.index.year]).sum().reset_index()
+        data = data.rename(columns={self.day: "years"})
         return data
 
-    def monthly_cashflow(self):
+    def sum_by_month_grouped(self):
+        data = self.data[[self.day, self.amount, self.payer]]
+        data = self.process_data(data)
+        grouped = data.groupby(by=[data.index.year, data.index.month, self.payer])
+        summed = grouped.sum()
+
+        summed["years"] = [group[0] for group in grouped.groups.keys()]
+        summed["months"] = [group[1] for group in grouped.groups.keys()]
+        summed["payer"] = [group[2] for group in grouped.groups.keys()]
+
+        summed.reset_index(drop=True, inplace=True)
+        return summed
+
+    def sum_by_month(self):
         data = self.data.copy()
         data = data[[self.amount, self.day]]
         data.index = pd.to_datetime(data[self.day], format='%d.%m.%y')
@@ -49,8 +58,14 @@ class Transactions(ABC):
         summed.reset_index(drop=True, inplace=True)
         return summed
 
+    def process_data(self, data):
+        data.index = pd.to_datetime(data[self.day], format='%d.%m.%y')
+        data[self.amount] = data[self.amount].str.replace(",", ".").astype(float)
+        data = self.filter_transactions(data)
+        return data
 
-class Revenus(Transactions):
+
+class Revenues(Transactions):
     def __init__(self, data):
         super().__init__(data)
 
@@ -67,7 +82,7 @@ class Expenses(Transactions):
 
 
 TRANSACTIONS_TYPE = {"all": Transactions,
-                     "revenus": Revenus,
+                     "revenues": Revenues,
                      "expenses": Expenses}
 
 
@@ -83,9 +98,3 @@ def create_transactions(type, data) -> Transactions:
 
 class NotDefinedTransactionTypeError(Exception):
     pass
-
-
-class CashflowAnalyser:
-    def __init__(self, transaction_type, step):
-        self.transaction_type = transaction_type
-        self.step = step
