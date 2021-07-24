@@ -65,18 +65,19 @@ class Expenses(Transactions):
         return data[data[SCHEMA["amount"]] < 0]
 
 
+TRANSACTIONS_TYPE = {"all": Transactions,
+                     "revenus": Revenus,
+                     "expenses": Expenses}
+
+
 def create_transactions(type, data) -> Transactions:
     type = type.lower()
 
-    transactions_type = {"all": Transactions,
-                         "revenus": Revenus,
-                         "expenses": Expenses}
-
     try:
-        return transactions_type[type](data)
+        return TRANSACTIONS_TYPE[type](data)
     except KeyError as err:
         raise NotDefinedTransactionTypeError(
-            f"{type} is not a valid transaction type, chose among {list(transactions_type.keys())}") from err
+            f"{type} is not a valid transaction type, chose among {list(TRANSACTIONS_TYPE.keys())}") from err
 
 
 class NotDefinedTransactionTypeError(Exception):
