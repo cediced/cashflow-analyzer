@@ -10,7 +10,7 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--step', default="yearly", type=str,
                         help=f'monthly or yearly')
 
-    parser.add_argument('-g', '--grouped', default="False", type=bool, nargs='+',
+    parser.add_argument('-g', '--grouped', default=False, type=bool,
                         help=f'per group of payers/receiver')
 
     parser.add_argument('-p', '--payers', default="", type=str, nargs='+',

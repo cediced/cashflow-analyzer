@@ -94,3 +94,18 @@ def test_get_the_expenses_for_each_year():
     result = {'years': [2018, 2019],
               'Betrag': [-100, -255]}
     assert result == sut.TransactionsAnalyser("expenses").sum(transactions).to_dict('list')
+
+
+def test_selections_of_groups():
+    transactions = pd.DataFrame(
+        {DAY: ['01.01.18', '02.01.18', '04.05.18', '15.05.18', '04.02.19', '18.06.19', '20.06.19', '20.06.19',
+               '20.06.19'],
+         AMOUNT: ["100", "200", "300,5", "-100", "10,75", "-5", "10", '-220', '-30.0'],
+         PAYER: ["VW", "Titi", "VW", "Supermarkt", "VW", "travel", "VW", "travel",
+                 "Supermarkt"]
+         })
+    selections = ["VW", "Supermarkt"]
+
+    usecase = sut.TransactionsAnalyser("all", is_grouped=True, selections=selections)
+    result = usecase.sum(transactions)
+    assert set(result[sut.SCHEMA["payer"]].values).issubset(selections)

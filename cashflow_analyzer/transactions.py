@@ -27,7 +27,7 @@ class Transactions(ABC):
         data = self.process_data(data)
         grouped = data.groupby(by=[data.index.year, data.index.month, self.payer])
         summed = grouped.sum()
-        summed = summed.rename_axis(['years', 'month', 'payer']).reset_index()
+        summed = summed.rename_axis(['years', 'month', SCHEMA['payer']]).reset_index()
         return summed
 
     def sum_by_year(self):
@@ -91,7 +91,7 @@ class TransactionsAnalyser:
         self.transaction_type = transaction_type
         self.step = step
         self.is_grouped = is_grouped
-        self.selections = None
+        self.selections = selections if selections else []
 
     def sum(self, data):
         result = None
@@ -107,6 +107,10 @@ class TransactionsAnalyser:
             result = transaction.sum_by_month_grouped()
         elif self.step == "monthly":
             result = transaction.sum_by_month()
+
+        if len(self.selections) > 0:
+            result = result[result[SCHEMA["payer"]].str.contains('|'.join(self.selections))]
+
         return result
 
     def validate_step(self):
