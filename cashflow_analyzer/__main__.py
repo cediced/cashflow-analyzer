@@ -1,17 +1,35 @@
 from loader import *
-from transactions import TRANSACTIONS_TYPE, create_transactions
+from transactions import TRANSACTIONS_TYPE, TransactionsAnalyser
+import argparse
+
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='analyse account.')
+    parser.add_argument('-t', '--transaction-type', type=str,
+                        help=f'type of transaction from {list(TRANSACTIONS_TYPE.keys())}')
+    parser.add_argument('-s', '--step', default="yearly", type=str,
+                        help=f'monthly or yearly')
+
+    parser.add_argument('-g', '--grouped', default="False", type=bool, nargs='+',
+                        help=f'per group of payers/receiver')
+
+    parser.add_argument('-p', '--payers', default="", type=str, nargs='+',
+                        help=f'receiver/payer')
+
+
+    args = parser.parse_args()
+
+
     PATH_DATA = r"../data/20210613-101728580-umsatz (1).CSV"
 
     data = get_data(PATH_DATA)
-    transactions = list(TRANSACTIONS_TYPE.keys())
-    while(1):
 
-        transaction_type = input(f"what doy ou want to analyze? chose between, {transactions} : ")
+    transaction_type = args.transaction_type
+    step = args.step
+    grouped = args.grouped
+    selections = args.payers
 
-        if transaction_type in transactions:
-            transaction = create_transactions(transaction_type, data)
-            print(transaction.sum_by_year())
-        else:
-            print(f"{transaction_type} is not {transactions}")
+    t = TransactionsAnalyser(transaction_type, step, grouped, selections)
+    print(t.sum(data))
+    if len(t.errors) != 0:
+        print(t.errors)

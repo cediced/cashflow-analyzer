@@ -22,25 +22,20 @@ class Transactions(ABC):
         data = self.process_data(data)
         return data.groupby(by=[data.index.year, self.payer]).sum().reset_index()
 
+    def sum_by_month_grouped(self):
+        data = self.data[[self.day, self.amount, self.payer]]
+        data = self.process_data(data)
+        grouped = data.groupby(by=[data.index.year, data.index.month, self.payer])
+        summed = grouped.sum()
+        summed = summed.rename_axis(['years', 'month', 'payer']).reset_index()
+        return summed
+
     def sum_by_year(self):
         data = self.data[[self.day, self.amount]]
         data = self.process_data(data)
         data = data.groupby(by=[data.index.year]).sum().reset_index()
         data = data.rename(columns={self.day: "years"})
         return data
-
-    def sum_by_month_grouped(self):
-        data = self.data[[self.day, self.amount, self.payer]]
-        data = self.process_data(data)
-        grouped = data.groupby(by=[data.index.year, data.index.month, self.payer])
-        summed = grouped.sum()
-
-        summed["years"] = [group[0] for group in grouped.groups.keys()]
-        summed["months"] = [group[1] for group in grouped.groups.keys()]
-        summed["payer"] = [group[2] for group in grouped.groups.keys()]
-
-        summed.reset_index(drop=True, inplace=True)
-        return summed
 
     def sum_by_month(self):
         data = self.data.copy()
@@ -86,15 +81,43 @@ TRANSACTIONS_TYPE = {"all": Transactions,
                      "expenses": Expenses}
 
 
-def create_transactions(type, data) -> Transactions:
-    type = type.lower()
-
-    try:
-        return TRANSACTIONS_TYPE[type](data)
-    except KeyError as err:
-        raise NotDefinedTransactionTypeError(
-            f"{type} is not a valid transaction type, chose among {list(TRANSACTIONS_TYPE.keys())}") from err
-
-
 class NotDefinedTransactionTypeError(Exception):
     pass
+
+
+class TransactionsAnalyser:
+    def __init__(self, transaction_type, step="yearly", is_grouped=False, selections=None):
+        self.errors = []
+        self.transaction_type = transaction_type
+        self.step = step
+        self.is_grouped = is_grouped
+        self.selections = None
+
+    def sum(self, data):
+        result = None
+
+        self.validate_step()
+        transaction = self.create_transactions(self.transaction_type, data)
+
+        if self.step == "yearly" and self.is_grouped:
+            result = transaction.sum_by_year_grouped()
+        elif self.step == "yearly":
+            result = transaction.sum_by_year()
+        elif self.step == "monthly" and self.is_grouped:
+            result = transaction.sum_by_month_grouped()
+        elif self.step == "monthly":
+            result = transaction.sum_by_month()
+        return result
+
+    def validate_step(self):
+        valids_steps = ["monthly", "yearly"]
+        if self.step not in valids_steps:
+            self.errors.append(f"{self.step} was not in {valids_steps}")
+
+    def create_transactions(self, type, data) -> Transactions:
+        type = type.lower()
+        try:
+            return TRANSACTIONS_TYPE[type](data)
+        except KeyError as err:
+            self.errors.append(
+                f"{type} is not a valid transaction type, chose among {list(TRANSACTIONS_TYPE.keys())}")
