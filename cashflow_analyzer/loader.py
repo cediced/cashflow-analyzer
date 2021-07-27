@@ -10,6 +10,7 @@ def get_data(path_data):
 def convert(data: pd.DataFrame) -> pd.DataFrame:
     df = pd.DataFrame()
     df[SCHEMA["day"]] = data["Booking date"].str.replace("/", ".")
-    df[SCHEMA["amount"]] = data["Credit"].fillna(0) + data["Debit"].fillna(0)
+    df[SCHEMA["amount"]] = data["Credit"].str.replace(",", ".").fillna(0).astype("float") + data["Debit"].str.replace(
+        ",", ".").fillna(0).astype("float")
     df[SCHEMA["payer"]] = data["Beneficiary / Originator"].fillna("") + data["Payment Details"].fillna("")
     return df

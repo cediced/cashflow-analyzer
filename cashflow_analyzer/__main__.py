@@ -20,9 +20,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
 
-    PATH_DATA = r"../data/20210613-101728580-umsatz (1).CSV"
+    # PATH_DATA = r"../data/20210613-101728580-umsatz (1).CSV"
+    PATH_DATA = r"../data/Transactions_380_633854500_20210725_163342.csv"
 
-    data = get_data(PATH_DATA)
+    data = convert(get_data(PATH_DATA))
 
     transaction_type = args.transaction_type
     step = args.step

@@ -2,7 +2,7 @@ from abc import ABC
 import pandas as pd
 
 
-SCHEMA = {"day": "date",
+SCHEMA = {"day": "Buchungstag",
           "amount": "Betrag",
           "payer": "Beguenstigter/Zahlungspflichtiger"}
 
