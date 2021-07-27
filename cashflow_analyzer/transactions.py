@@ -1,18 +1,22 @@
 from abc import ABC
-
 import pandas as pd
 
-SCHEMA = {"day": "Buchungstag",
+
+SCHEMA = {"day": "date",
           "amount": "Betrag",
           "payer": "Beguenstigter/Zahlungspflichtiger"}
 
 
+DAY_FORMAT = '%d.%m.%y'
+
+
 class Transactions(ABC):
     def __init__(self, data):
-        self.data = data
+        self.data = data.copy()
         self.day = SCHEMA["day"]
         self.amount = SCHEMA["amount"]
         self.payer = SCHEMA["payer"]
+        self.data.index = pd.to_datetime(data[self.day], format=DAY_FORMAT)
 
     def filter_transactions(self, data):
         return data
@@ -40,7 +44,6 @@ class Transactions(ABC):
     def sum_by_month(self):
         data = self.data.copy()
         data = data[[self.amount, self.day]]
-        data.index = pd.to_datetime(data[self.day], format='%d.%m.%y')
         data[self.amount] = data[self.amount].str.replace(",", ".").astype(float)
 
         data = self.filter_transactions(data)
@@ -54,7 +57,6 @@ class Transactions(ABC):
         return summed
 
     def process_data(self, data):
-        data.index = pd.to_datetime(data[self.day], format='%d.%m.%y')
         data[self.amount] = data[self.amount].str.replace(",", ".").astype(float)
         data = self.filter_transactions(data)
         return data
@@ -93,7 +95,7 @@ class TransactionsAnalyser:
         self.is_grouped = is_grouped
         self.selections = selections if selections else []
 
-    def sum(self, data):
+    def sum(self, data: pd.DataFrame):
         result = None
 
         self.validate_step()
