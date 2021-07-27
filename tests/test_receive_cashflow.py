@@ -3,7 +3,6 @@ import pytest
 
 import cashflow_analyzer.transactions as sut
 
-
 DAY = sut.SCHEMA["day"]
 AMOUNT = sut.SCHEMA["amount"]
 PAYER = sut.SCHEMA["payer"]
@@ -31,7 +30,7 @@ def test_sum_by_month_grouped():
     result = {'Betrag': [-100.0, 200.0, 400.5, 20.75, -5.0],
               'years': [2018, 2018, 2018, 2019, 2019],
               'month': [1, 1, 1, 2, 2],
-              'payer': ['Supermarkt', 'Titi', 'VW', 'VW', 'travel']}
+              PAYER: ['Supermarkt', 'Titi', 'VW', 'VW', 'travel']}
 
     assert result == sut.TransactionsAnalyser("all", step="monthly", is_grouped=True).sum(transactions).to_dict('list')
 
@@ -108,4 +107,4 @@ def test_selections_of_groups():
 
     usecase = sut.TransactionsAnalyser("all", is_grouped=True, selections=selections)
     result = usecase.sum(transactions)
-    assert set(result[sut.SCHEMA["payer"]].values).issubset(selections)
+    assert set(result[PAYER].values).issubset(selections)
