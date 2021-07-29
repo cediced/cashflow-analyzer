@@ -16,7 +16,7 @@ class Transactions(ABC):
         self.day = SCHEMA["day"]
         self.amount = SCHEMA["amount"]
         self.payer = SCHEMA["payer"]
-        self.data.index = pd.to_datetime(data[self.day], format=DAY_FORMAT)
+        self.data.index = pd.to_datetime(data[self.day])
 
     def filter_transactions(self, data):
         return data
@@ -44,7 +44,6 @@ class Transactions(ABC):
     def sum_by_month(self):
         data = self.data.copy()
         data = data[[self.amount, self.day]]
-        data[self.amount] = data[self.amount].str.replace(",", ".").astype(float)
 
         data = self.filter_transactions(data)
 
@@ -57,7 +56,6 @@ class Transactions(ABC):
         return summed
 
     def process_data(self, data):
-        data[self.amount] = data[self.amount].str.replace(",", ".").astype(float)
         data = self.filter_transactions(data)
         return data
 

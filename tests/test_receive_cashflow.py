@@ -2,13 +2,18 @@ import pandas as pd
 import pytest
 
 import cashflow_analyzer.transactions as sut
+from cashflow_analyzer.loader import sparkasse_convertor
 
 DAY = sut.SCHEMA["day"]
 AMOUNT = sut.SCHEMA["amount"]
 PAYER = sut.SCHEMA["payer"]
 
 
-def test_sum_all_by_month():
+@pytest.fixture(name="convertor")
+def fixture_convert():
+    return sparkasse_convertor
+
+def test_sum_all_by_month(convertor):
     transactions = pd.DataFrame(
         {DAY: ['01.01.18', '02.01.18', '04.05.18', '15.05.18', '04.02.19', '18.06.19', '20.06.19'],
          AMOUNT: ["100", "200", "300,5", "-100", "10,75", "-5", "10"],
@@ -18,7 +23,7 @@ def test_sum_all_by_month():
               'years': [2018, 2018, 2019, 2019],
               'months': [1, 5, 2, 6]}
 
-    assert result == sut.TransactionsAnalyser("all", step="monthly").sum(transactions).to_dict('list')
+    assert result == sut.TransactionsAnalyser("all", step="monthly").sum(convertor(transactions)).to_dict('list')
 
 
 def test_sum_by_month_grouped():
