@@ -26,5 +26,5 @@ def sparkasse_convertor(data: pd.DataFrame) -> pd.DataFrame:
     df[SCHEMA["day"]] = df[SCHEMA["day"]].dt.strftime('%d.%m.%Y')
 
     df[SCHEMA["amount"]] = data["Betrag"].str.replace(",", ".").astype(float)
-    # df[SCHEMA["payer"]] = data["Beguenstigter/Zahlungspflichtiger"]
+    df[SCHEMA["payer"]] = data["Beguenstigter/Zahlungspflichtiger"]
     return df
