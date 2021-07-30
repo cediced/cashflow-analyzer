@@ -16,7 +16,7 @@ class Transactions(ABC):
         self.day = SCHEMA["day"]
         self.amount = SCHEMA["amount"]
         self.payer = SCHEMA["payer"]
-        self.data.index = pd.to_datetime(data[self.day])
+        self.data.index = pd.to_datetime(data[self.day], format="%d.%m.%Y")
 
     def filter_transactions(self, data):
         return data
