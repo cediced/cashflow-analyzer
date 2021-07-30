@@ -5,7 +5,7 @@ from cashflow_analyzer.transactions import TRANSACTIONS_TYPES, STEP_TYPES
 
 @dataclass
 class AnalyseRequest:
-    type: str = "all"
+    transaction_type: str = "all"
     step: str = "yearly"
     grouped: bool = False
     payers: list = None
@@ -28,7 +28,7 @@ class AnalyseRequestValidator:
             self.errors.append(f"{arg} is not {wanted_type}")
 
     def validate(self, request: AnalyseRequest):
-        self.is_arg_allowed(request.type, list(TRANSACTIONS_TYPES.keys()))
+        self.is_arg_allowed(request.transaction_type, list(TRANSACTIONS_TYPES.keys()))
         self.is_arg_allowed(request.step, list(STEP_TYPES.keys()))
         self.is_type_allowed(request.grouped, bool)
         if request.payers:

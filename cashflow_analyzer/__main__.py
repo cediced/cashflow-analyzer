@@ -1,7 +1,7 @@
+from cashflow_analyzer.requests import AnalyseRequest, AnalyseRequestValidator
 from loader import *
 from transactions import TRANSACTIONS_TYPES, TransactionsAnalyser
 import argparse
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='analyse account.')
@@ -16,20 +16,20 @@ if __name__ == "__main__":
     parser.add_argument('-p', '--payers', default="", type=str, nargs='+',
                         help=f'receiver/payer')
 
-
     args = parser.parse_args()
+    request = AnalyseRequest(**vars(args))
+    v = AnalyseRequestValidator()
+    v.validate(request)
 
-    #PATH_DATA = r"../data/20210613-101728580-umsatz (1).CSV"
+    # PATH_DATA = r"../data/20210613-101728580-umsatz (1).CSV"
     PATH_DATA = r"../data/Transactions_380_633854500_20210725_163342.csv"
 
     data = db_convertor(get_data(PATH_DATA))
 
-    transaction_type = args.transaction_type
-    step = args.step
-    grouped = args.grouped
-    selections = args.payers
-
-    t = TransactionsAnalyser(transaction_type, step, grouped, selections)
+    t = TransactionsAnalyser(transaction_type=request.transaction_type,
+                             step=request.step,
+                             is_grouped=request.grouped,
+                             selections=request.payers)
     print(t.sum(data))
     if len(t.errors) != 0:
         print(t.errors)
