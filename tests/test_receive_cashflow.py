@@ -2,7 +2,6 @@ import pandas as pd
 import pytest
 
 import cashflow_analyzer.transactions as sut
-from cashflow_analyzer.loader import sparkasse_convertor
 
 DAY = sut.SCHEMA["day"]
 AMOUNT = sut.SCHEMA["amount"]
