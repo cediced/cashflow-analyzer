@@ -1,13 +1,13 @@
 from abc import ABC
 import pandas as pd
 
-
 SCHEMA = {"day": "Buchungstag",
           "amount": "Betrag",
           "payer": "Beguenstigter/Zahlungspflichtiger"}
 
-
 DAY_FORMAT = '%d.%m.%y'
+STEP_TYPES = {"monthly": "monthly",
+              "yearly": "yearly"}
 
 
 class Transactions(ABC):
@@ -76,7 +76,7 @@ class Expenses(Transactions):
         return data[data[SCHEMA["amount"]] < 0]
 
 
-TRANSACTIONS_TYPE = {"all": Transactions,
+TRANSACTIONS_TYPES = {"all": Transactions,
                      "revenues": Revenues,
                      "expenses": Expenses}
 
@@ -86,7 +86,7 @@ class NotDefinedTransactionTypeError(Exception):
 
 
 class TransactionsAnalyser:
-    def __init__(self, transaction_type, step="yearly", is_grouped=False, selections=None):
+    def __init__(self, transaction_type, step=STEP_TYPES["yearly"], is_grouped=False, selections=None):
         self.errors = []
         self.transaction_type = transaction_type
         self.step = step
@@ -99,13 +99,13 @@ class TransactionsAnalyser:
         self.validate_step()
         transaction = self.create_transactions(self.transaction_type, data)
 
-        if self.step == "yearly" and self.is_grouped:
+        if self.step == STEP_TYPES["yearly"] and self.is_grouped:
             result = transaction.sum_by_year_grouped()
-        elif self.step == "yearly":
+        elif self.step == STEP_TYPES["yearly"]:
             result = transaction.sum_by_year()
-        elif self.step == "monthly" and self.is_grouped:
+        elif self.step == STEP_TYPES["monthly"] and self.is_grouped:
             result = transaction.sum_by_month_grouped()
-        elif self.step == "monthly":
+        elif self.step == STEP_TYPES["monthly"]:
             result = transaction.sum_by_month()
 
         if len(self.selections) > 0:
@@ -114,14 +114,14 @@ class TransactionsAnalyser:
         return result
 
     def validate_step(self):
-        valids_steps = ["monthly", "yearly"]
+        valids_steps = STEP_TYPES.keys()
         if self.step not in valids_steps:
             self.errors.append(f"{self.step} was not in {valids_steps}")
 
     def create_transactions(self, type, data) -> Transactions:
         type = type.lower()
         try:
-            return TRANSACTIONS_TYPE[type](data)
+            return TRANSACTIONS_TYPES[type](data)
         except KeyError as err:
             self.errors.append(
-                f"{type} is not a valid transaction type, chose among {list(TRANSACTIONS_TYPE.keys())}")
+                f"{type} is not a valid transaction type, chose among {list(TRANSACTIONS_TYPES.keys())}")

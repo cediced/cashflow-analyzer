@@ -1,12 +1,12 @@
 from loader import *
-from transactions import TRANSACTIONS_TYPE, TransactionsAnalyser
+from transactions import TRANSACTIONS_TYPES, TransactionsAnalyser
 import argparse
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='analyse account.')
     parser.add_argument('-t', '--transaction-type', type=str,
-                        help=f'type of transaction from {list(TRANSACTIONS_TYPE.keys())}')
+                        help=f'type of transaction from {list(TRANSACTIONS_TYPES.keys())}')
     parser.add_argument('-s', '--step', default="yearly", type=str,
                         help=f'monthly or yearly')
 
@@ -18,7 +18,6 @@ if __name__ == "__main__":
 
 
     args = parser.parse_args()
-
 
     #PATH_DATA = r"../data/20210613-101728580-umsatz (1).CSV"
     PATH_DATA = r"../data/Transactions_380_633854500_20210725_163342.csv"
