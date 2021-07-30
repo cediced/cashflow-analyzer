@@ -31,8 +31,11 @@ class AnalyseRequestValidator:
         self.is_arg_allowed(request.transaction_type, list(TRANSACTIONS_TYPES.keys()))
         self.is_arg_allowed(request.step, list(STEP_TYPES.keys()))
         self.is_type_allowed(request.grouped, bool)
+
         if request.payers:
             self.is_type_allowed(request.payers, list)
+        else:
+            request.payers = []
 
         if len(self.errors) != 0:
             raise AgumentsErrors(self)

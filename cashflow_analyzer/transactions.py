@@ -96,7 +96,6 @@ class TransactionsAnalyser:
     def sum(self, data: pd.DataFrame):
         result = None
 
-        self.validate_step()
         transaction = self.create_transactions(self.transaction_type, data)
 
         if self.step == STEP_TYPES["yearly"] and self.is_grouped:
@@ -113,15 +112,6 @@ class TransactionsAnalyser:
 
         return result
 
-    def validate_step(self):
-        valids_steps = STEP_TYPES.keys()
-        if self.step not in valids_steps:
-            self.errors.append(f"{self.step} was not in {valids_steps}")
-
     def create_transactions(self, type, data) -> Transactions:
         type = type.lower()
-        try:
-            return TRANSACTIONS_TYPES[type](data)
-        except KeyError as err:
-            self.errors.append(
-                f"{type} is not a valid transaction type, chose among {list(TRANSACTIONS_TYPES.keys())}")
+        return TRANSACTIONS_TYPES[type](data)

@@ -47,3 +47,9 @@ def test_many_mistake(validator):
         )
     except AgumentsErrors:
         assert 4 == len(validator.errors)
+
+
+def test_replace_none_with_empty_list(validator):
+    request = AnalyseRequest(grouped=True, payers=None)
+    validator.validate(request)
+    assert request.payers == []
