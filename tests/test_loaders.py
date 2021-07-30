@@ -12,7 +12,8 @@ DEUTSCHE_BANK_DF = pd.DataFrame(
             "Beneficiary / Originator": ["EDEKA", None],
             "Payment Details": [None, "multiplus"],
             "Debit": [None, "-5.0"],
-            "Credit": ["2,160.5", None]
+            "Credit": ["2,160.5", None],
+            "dummy": [1,2]
         }
     )
 
@@ -22,6 +23,7 @@ SPARKASSE_DF = pd.DataFrame(
                 "Buchungstag": ["27.01.21", "30.06.21"],
                 "Beguenstigter/Zahlungspflichtiger": ["EDEKA", "multiplus"],
                 "Betrag": ["2160,5", "-5,0"],
+                "dummy": [1,2]
             }
         )
 
