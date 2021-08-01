@@ -21,13 +21,21 @@ class Transactions(ABC):
     def filter_transactions(self, data):
         return data
 
-    def sum_by_year_grouped(self):
+    def sum_by_year_grouped(self, selections=None):
         data = self.data[[self.day, self.amount, self.payer]]
+
+        if selections:
+            data = data[data[self.payer].str.contains('|'.join(selections))]
+
         data = self.process_data(data)
         return data.groupby(by=[data.index.year, self.payer]).sum().reset_index()
 
-    def sum_by_month_grouped(self):
+    def sum_by_month_grouped(self, selections=None):
         data = self.data[[self.day, self.amount, self.payer]]
+
+        if selections:
+            data = data[data[self.payer].str.contains('|'.join(selections))]
+
         data = self.process_data(data)
         grouped = data.groupby(by=[data.index.year, data.index.month, self.payer])
         summed = grouped.sum()
@@ -96,27 +104,18 @@ class TransactionsAnalyser:
     def sum(self, data: pd.DataFrame):
         result = None
 
-        self.validate_step()
         transaction = self.create_transactions(self.transaction_type.lower(), data)
 
         if self.step == STEP_TYPES["yearly"] and self.is_grouped:
-            result = transaction.sum_by_year_grouped()
+            result = transaction.sum_by_year_grouped(selections=self.selections)
         elif self.step == STEP_TYPES["yearly"]:
             result = transaction.sum_by_year()
         elif self.step == STEP_TYPES["monthly"] and self.is_grouped:
-            result = transaction.sum_by_month_grouped()
+            result = transaction.sum_by_month_grouped(selections=self.selections)
         elif self.step == STEP_TYPES["monthly"]:
             result = transaction.sum_by_month()
 
-        if len(self.selections) > 0 and SCHEMA["payer"] in result.columns:
-            result = result[result[SCHEMA["payer"]].str.contains('|'.join(self.selections))]
-
         return result
-
-    def validate_step(self):
-        valids_steps = STEP_TYPES.keys()
-        if self.step not in valids_steps:
-            self.errors.append(f"{self.step} was not in {valids_steps}")
 
     def create_transactions(self, type, data) -> Transactions:
         try:
