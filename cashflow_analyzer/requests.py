@@ -37,6 +37,9 @@ class AnalyseRequestValidator:
         else:
             request.payers = []
 
+        if not all(isinstance(item, str) for item in request.payers):
+            self.errors.append(f"not all the elements of {request.payers} are string")
+
         if len(self.errors) != 0:
             raise AgumentsErrors(self)
 

@@ -77,8 +77,8 @@ class Expenses(Transactions):
 
 
 TRANSACTIONS_TYPES = {"all": Transactions,
-                     "revenues": Revenues,
-                     "expenses": Expenses}
+                      "revenues": Revenues,
+                      "expenses": Expenses}
 
 
 class NotDefinedTransactionTypeError(Exception):
@@ -96,7 +96,8 @@ class TransactionsAnalyser:
     def sum(self, data: pd.DataFrame):
         result = None
 
-        transaction = self.create_transactions(self.transaction_type, data)
+        self.validate_step()
+        transaction = self.create_transactions(self.transaction_type.lower(), data)
 
         if self.step == STEP_TYPES["yearly"] and self.is_grouped:
             result = transaction.sum_by_year_grouped()
@@ -107,11 +108,19 @@ class TransactionsAnalyser:
         elif self.step == STEP_TYPES["monthly"]:
             result = transaction.sum_by_month()
 
-        if len(self.selections) > 0:
+        if len(self.selections) > 0 and SCHEMA["payer"] in result.columns:
             result = result[result[SCHEMA["payer"]].str.contains('|'.join(self.selections))]
 
         return result
 
+    def validate_step(self):
+        valids_steps = STEP_TYPES.keys()
+        if self.step not in valids_steps:
+            self.errors.append(f"{self.step} was not in {valids_steps}")
+
     def create_transactions(self, type, data) -> Transactions:
-        type = type.lower()
-        return TRANSACTIONS_TYPES[type](data)
+        try:
+            return TRANSACTIONS_TYPES[type](data)
+        except KeyError as err:
+            raise NotDefinedTransactionTypeError(
+                f"{type} is not a valid transaction type, chose among {list(TRANSACTIONS_TYPES.keys())}") from err
