@@ -21,10 +21,10 @@ if __name__ == "__main__":
     v = AnalyseRequestValidator()
     v.validate(request)
 
-    # PATH_DATA = r"../data/20210613-101728580-umsatz (1).CSV"
-    PATH_DATA = r"../data/Transactions_380_633854500_20210725_163342.csv"
+    PATH_DATA = r"../data/20210613-101728580-umsatz (1).CSV"
+    # PATH_DATA = r"../data/Transactions_380_633854500_20210725_163342.csv"
 
-    data = db_convertor(get_data(PATH_DATA))
+    data = sparkasse_convertor(get_data(PATH_DATA))
 
     t = TransactionsAnalyser(transaction_type=request.transaction_type,
                              step=request.step,

@@ -24,8 +24,7 @@ class Transactions(ABC):
     def sum_by_year_grouped(self, selections=None):
         data = self.data[[self.day, self.amount, self.payer]]
 
-        if selections:
-            data = data[data[self.payer].str.contains('|'.join(selections))]
+        data = self.filter_replace_payer_according_to_selection(selections, data.copy())
 
         data = self.process_data(data)
         return data.groupby(by=[data.index.year, self.payer]).sum().reset_index()
@@ -33,8 +32,7 @@ class Transactions(ABC):
     def sum_by_month_grouped(self, selections=None):
         data = self.data[[self.day, self.amount, self.payer]]
 
-        if selections:
-            data = data[data[self.payer].str.contains('|'.join(selections))]
+        data = self.filter_replace_payer_according_to_selection(selections, data.copy())
 
         data = self.process_data(data)
         grouped = data.groupby(by=[data.index.year, data.index.month, self.payer])
@@ -66,6 +64,14 @@ class Transactions(ABC):
     def process_data(self, data):
         data = self.filter_transactions(data)
         return data
+
+    def filter_replace_payer_according_to_selection(self, selections, df):
+        if selections:
+            df = df[df[self.payer].str.contains('|'.join(selections), na=False)]
+
+            for selection in selections:
+                df.loc[df[self.payer].str.contains(selection, na=False), self.payer] = selection
+        return df
 
 
 class Revenues(Transactions):

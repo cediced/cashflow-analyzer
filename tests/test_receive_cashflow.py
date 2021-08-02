@@ -116,7 +116,7 @@ def test_selections_of_groups():
                '20.06.2019',
                '20.06.2019'],
          AMOUNT: [100, 200, 300.5, -100, 10.75, -5, 10, -220, -30.0],
-         PAYER: ["VW", "Titi", "VW", "Supermarkt", "VW", "travel", "VW", "travel",
+         PAYER: ["VW wolfsburg PAYMENTS EUROPE", "Titi", "VW ingolstadt", "Supermarkt", "VW", "travel", "VW", "travel",
                  "Supermarkt"]
          })
     selections = ["VW", "Supermarkt"]
@@ -124,6 +124,7 @@ def test_selections_of_groups():
     usecase = sut.TransactionsAnalyser("all", is_grouped=True, selections=selections)
     result = usecase.sum(transactions)
     assert set(result[PAYER].values).issubset(selections)
+    assert len(result) > 0
 
 
 @given(
@@ -137,7 +138,7 @@ def test_selections_of_groups():
         [True, False, "", 4568, "asdasd"]
     ),
     selections=st.sampled_from([random.sample(
-        ["VW", "Titi", "VW", "Supermarkt", "VW", "travel", "VW", "travel",
+        ["VW", "Titi", "VW Germ", "Supermarkt", "VW", "travel", "VW", "travel",
          "Supermarkt", None, 458], 3)]),
 )
 def test_with_hypotesis(transaction_type, step, is_grouped, selections):
