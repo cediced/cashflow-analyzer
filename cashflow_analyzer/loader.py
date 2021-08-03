@@ -10,7 +10,7 @@ def get_data(path_data):
 def db_convertor(data: pd.DataFrame) -> pd.DataFrame:
     df = pd.DataFrame()
     df[SCHEMA["day"]] = data["Booking date"].str.replace("/", ".")
-    df[SCHEMA["day"]] = pd.to_datetime(data["Booking date"].str.replace("/", "."))
+    df[SCHEMA["day"]] = pd.to_datetime(data["Booking date"].str.replace("/", "."), format='%d.%m.%Y')
     df[SCHEMA["day"]] = df[SCHEMA["day"]].dt.strftime('%d.%m.%Y')
 
     df[SCHEMA["amount"]] = data["Credit"].str.replace(",", "").fillna(0).astype("float") + data["Debit"].str.replace(
@@ -22,7 +22,7 @@ def db_convertor(data: pd.DataFrame) -> pd.DataFrame:
 def sparkasse_convertor(data: pd.DataFrame) -> pd.DataFrame:
     df = pd.DataFrame()
     df[SCHEMA["day"]] = data["Buchungstag"].str.replace("/", ".")
-    df[SCHEMA["day"]] = pd.to_datetime(data["Buchungstag"].str.replace("/", "."))
+    df[SCHEMA["day"]] = pd.to_datetime(data["Buchungstag"].str.replace("/", "."), format='%d.%m.%y')
     df[SCHEMA["day"]] = df[SCHEMA["day"]].dt.strftime('%d.%m.%Y')
 
     df[SCHEMA["amount"]] = data["Betrag"].str.replace(",", ".").astype(float)

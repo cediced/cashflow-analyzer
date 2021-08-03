@@ -1,7 +1,36 @@
+import numpy as np
+
 from cashflow_analyzer.requests import AnalyseRequest, AnalyseRequestValidator
 from loader import *
 from transactions import TRANSACTIONS_TYPES, TransactionsAnalyser
 import argparse
+
+import matplotlib.pyplot as plt
+
+
+def plot_report_over_the_years(request):
+    fig, ax = plt.subplots(figsize=(10, 5), tight_layout=True)
+    ax.plot(result["years"], result["Betrag"], '-X')
+    ax.set_xlabel("years")
+    ax.set_ylabel(f"{request.transaction_type} in euro")
+    ax.set_title(f"{request.transaction_type} over the years")
+    plt.grid()
+    plt.xticks(result["years"])
+    plt.show()
+
+
+def plot_report_over_the_month(request):
+    result["date"] = result["years"].astype(str) + "-" + result["months"].astype(str)
+    fig, ax = plt.subplots(figsize=(10, 5), tight_layout=True)
+
+    ax.plot(result["date"], result["Betrag"], '-X')
+    ax.set_xlabel("months")
+    ax.set_ylabel(f"{request.transaction_type} in euro")
+    ax.set_title(f"{request.transaction_type} over the months")
+    plt.grid()
+    plt.xticks(result["date"], rotation='vertical')
+    plt.show()
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='analyse account.')
@@ -30,6 +59,9 @@ if __name__ == "__main__":
                              step=request.step,
                              is_grouped=request.grouped,
                              selections=request.payers)
-    print(t.sum(data))
+    result = t.sum(data)
+    print(result)
     if len(t.errors) != 0:
         print(t.errors)
+
+    plot_report_over_the_month(request)
