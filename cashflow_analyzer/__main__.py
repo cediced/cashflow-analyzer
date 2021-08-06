@@ -33,6 +33,15 @@ def plot_report(model: Model):
     ax.set_title(model.title)
     plt.grid()
     plt.xticks(model.x_axis, rotation='vertical')
+    return fig
+
+
+def to_pdfs(models, path):
+    from matplotlib.backends.backend_pdf import PdfPages
+    with PdfPages(path) as pdf:
+        for model in models:
+            pdf.savefig(plot_report(model))
+            plt.close()
 
 
 if __name__ == "__main__":
@@ -49,6 +58,7 @@ if __name__ == "__main__":
                 AnalyseRequest(transaction_type="expenses", step="monthly"),
                 AnalyseRequest(transaction_type="revenues", step="monthly")
                 ]
+    models = []
 
     for request in requests:
         v = AnalyseRequestValidator()
@@ -60,5 +70,6 @@ if __name__ == "__main__":
                                  selections=request.payers)
         result = t.sum(data)
 
-        plot_report(graph_interface(result, request.transaction_type, request.step))
-        plt.show()
+        models.append(graph_interface(result, request.transaction_type, request.step))
+
+    to_pdfs(models, "../data/report.pdf")
