@@ -100,12 +100,13 @@ class NotDefinedTransactionTypeError(Exception):
 
 
 class TransactionsAnalyser:
-    def __init__(self, transaction_type, step=STEP_TYPES["yearly"], is_grouped=False, selections=None):
+    def __init__(self, transaction_type, step=STEP_TYPES["yearly"], is_grouped=False, selections=None, years=None):
         self.errors = []
         self.transaction_type = transaction_type
         self.step = step
         self.is_grouped = is_grouped
         self.selections = selections if selections else []
+        self.years = years
 
     def sum(self, data: pd.DataFrame):
         result = None
@@ -118,8 +119,15 @@ class TransactionsAnalyser:
             result = transaction.sum_by_year()
         elif self.step == STEP_TYPES["monthly"] and self.is_grouped:
             result = transaction.sum_by_month_grouped(selections=self.selections)
+
+            if self.years:
+                result = result[result["years"].isin(self.years)]
+
         elif self.step == STEP_TYPES["monthly"]:
             result = transaction.sum_by_month()
+
+            if self.years:
+                result = result[result["years"].isin(self.years)]
 
         return result
 
