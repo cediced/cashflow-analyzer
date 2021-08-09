@@ -1,7 +1,9 @@
 from matplotlib import pyplot as plt
-
-from cashflow_analyzer.__main__ import Model
+from collections import namedtuple
 from cashflow_analyzer.transactions import SCHEMA
+
+
+Model = namedtuple("Model", "fig_size, amount, x_axis, x_label, y_label, title")
 
 
 def graph_interface(data, transaction_type, step):

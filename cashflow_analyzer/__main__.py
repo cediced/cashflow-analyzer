@@ -3,15 +3,12 @@ from cashflow_analyzer.requests import AnalyseRequest, AnalyseRequestValidator
 from loader import *
 from transactions import TransactionsAnalyser
 
-from collections import namedtuple
-
-Model = namedtuple("Model", "fig_size, amount, x_axis, x_label, y_label, title")
 
 if __name__ == "__main__":
 
     PATH_DATA = r"../data/20210613-101728580-umsatz (1).CSV"
     # PATH_DATA = r"../data/Transactions_380_633854500_20210725_163342.csv"
-
+    years = [2020, 2021]
     data = sparkasse_convertor(get_data(PATH_DATA))
 
     requests = [AnalyseRequest(transaction_type="all"),
@@ -30,9 +27,10 @@ if __name__ == "__main__":
         t = TransactionsAnalyser(transaction_type=request.transaction_type,
                                  step=request.step,
                                  is_grouped=request.grouped,
-                                 selections=request.payers)
+                                 selections=request.payers,
+                                 years=years)
         result = t.sum(data)
 
         models.append(graph_interface(result, request.transaction_type, request.step))
 
-    to_pdfs(models, "../data/report.pdf")
+    to_pdfs(models, f"../data/report_{str(years)}.pdf")
