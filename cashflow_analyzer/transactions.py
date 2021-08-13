@@ -1,4 +1,6 @@
 from abc import ABC
+
+import numpy as np
 import pandas as pd
 
 SCHEMA = {"day": "Buchungstag",
@@ -137,3 +139,14 @@ class TransactionsAnalyser:
         except KeyError as err:
             raise NotDefinedTransactionTypeError(
                 f"{type} is not a valid transaction type, chose among {list(TRANSACTIONS_TYPES.keys())}") from err
+
+
+def categorize(transactions: pd.DataFrame, categories: dict) -> pd.DataFrame:
+    result = transactions.copy()
+
+    result['category'] = "other"
+    for catego, values in categories.items():
+        result['category'] = np.where(result[SCHEMA["payer"]].str.lower().str.contains("|".join(values)),
+                                      catego,
+                                      result['category'])
+    return result

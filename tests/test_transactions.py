@@ -127,6 +127,21 @@ def test_selections_of_groups():
     assert len(result) > 0
 
 
+def test_catergorize():
+    transactions = pd.DataFrame(
+        {DAY: ['01.01.2018', '02.01.2018', '04.05.2018', '15.05.2018', '04.02.2019', '18.06.2019', '20.06.2019',
+               '20.06.2019',
+               '20.06.2019'],
+         AMOUNT: [100, 200, 300.5, -100, 10.75, -5, 10, -220, -30.0],
+         PAYER: ["VW", "Titi", "VW", "supermarkt", "VW", "travel", "VW", "travel",
+                 "Supermarkt"]
+         })
+
+    categories = {"salary": ["vw"], "food": ["supermarkt"]}
+    categorized_data = sut.categorize(transactions, categories)
+
+    assert categorized_data["category"].tolist() == ["salary", "other", "salary", "food", "salary", "other", "salary",
+                                                     "other", "food"]
 
 
 
