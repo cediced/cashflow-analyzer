@@ -27,4 +27,5 @@ def sparkasse_convertor(data: pd.DataFrame) -> pd.DataFrame:
 
     df[SCHEMA["amount"]] = data["Betrag"].str.replace(",", ".").astype(float)
     df[SCHEMA["payer"]] = data["Beguenstigter/Zahlungspflichtiger"]
+    df[SCHEMA["payer"]] = df[SCHEMA["payer"]].fillna("custom_nan")
     return df

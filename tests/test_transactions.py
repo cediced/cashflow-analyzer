@@ -1,4 +1,6 @@
 import random
+
+import numpy as np
 from hypothesis import given, example, settings, reproduce_failure
 import hypothesis.strategies as st
 import pandas as pd
@@ -133,14 +135,14 @@ def test_catergorize():
                '20.06.2019',
                '20.06.2019'],
          AMOUNT: [100, 200, 300.5, -100, 10.75, -5, 10, -220, -30.0],
-         PAYER: ["VW", "Titi", "VW", "supermarkt", "VW", "travel", "VW", "travel",
+         PAYER: ["VW", "Titi", "VW", "supermarkt", "", "travel", "VW", "travel",
                  "Supermarkt"]
          })
 
     categories = {"salary": ["vw"], "food": ["supermarkt"]}
     categorized_data = sut.categorize(transactions, categories)
 
-    assert categorized_data["category"].tolist() == ["salary", "other", "salary", "food", "salary", "other", "salary",
+    assert categorized_data["category"].tolist() == ["salary", "other", "salary", "food", "other", "other", "salary",
                                                      "other", "food"]
 
 

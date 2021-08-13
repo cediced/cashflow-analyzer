@@ -144,8 +144,10 @@ class TransactionsAnalyser:
 def categorize(transactions: pd.DataFrame, categories: dict) -> pd.DataFrame:
     result = transactions.copy()
 
+    categories_low = dict((k.lower(), list(map(str.lower, v))) for k,v in categories.items())
+
     result['category'] = "other"
-    for catego, values in categories.items():
+    for catego, values in categories_low.items():
         result['category'] = np.where(result[SCHEMA["payer"]].str.lower().str.contains("|".join(values)),
                                       catego,
                                       result['category'])

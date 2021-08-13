@@ -20,7 +20,7 @@ SPARKASSE_DF = pd.DataFrame(
         "Buchungstag": ["01.04.21", "30.06.21"],
         "Beguenstigter/Zahlungspflichtiger": ["EDEKA", "multiplus"],
         "Betrag": ["2160,5", "-5,0"],
-        "dummy": [1, 2]
+        "dummy": [1, 2],
     }
 )
 
