@@ -5,7 +5,8 @@ import pandas as pd
 
 SCHEMA = {"day": "Buchungstag",
           "amount": "Betrag",
-          "payer": "Beguenstigter/Zahlungspflichtiger"}
+          "payer": "Beguenstigter/Zahlungspflichtiger",
+          "category": "category"}
 
 DAY_FORMAT = '%d.%m.%y'
 STEP_TYPES = {"monthly": "monthly",
@@ -18,6 +19,7 @@ class Transactions(ABC):
         self.day = SCHEMA["day"]
         self.amount = SCHEMA["amount"]
         self.payer = SCHEMA["payer"]
+        self.category = SCHEMA["category"]
         self.data.index = pd.to_datetime(data[self.day], format="%d.%m.%Y")
 
     def filter_transactions(self, data):
