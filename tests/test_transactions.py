@@ -1,7 +1,7 @@
 import random
 
 import numpy as np
-from hypothesis import given, example, settings, reproduce_failure
+from hypothesis import given, example, settings, reproduce_failure, HealthCheck
 import hypothesis.strategies as st
 import pandas as pd
 import pytest
@@ -15,48 +15,68 @@ AMOUNT = sut.SCHEMA["amount"]
 PAYER = sut.SCHEMA["payer"]
 
 
+class TransactionsValues:
+    def __init__(self):
+        self.values = pd.DataFrame(
+            {DAY: ['01.01.2018', '02.01.2018', '04.05.2018', '15.05.2018', '04.02.2019', '18.06.2019', '20.06.2019',
+                   '20.06.2019',
+                   '20.06.2019'],
+             AMOUNT: [100, 200, 300.5, -100, 10.75, -5, 10, -220, -30.0],
+             PAYER: ["VW", "Titi", "VW", "Supermarkt", "VW", "travel", "VW", "travel",
+                     "Supermarkt"]
+             })
+
+    @property
+    def amount_per_month(self):
+        return {AMOUNT: [300.0, 200.5, 10.75, -245],
+                'years': [2018, 2018, 2019, 2019],
+                'months': [1, 5, 2, 6]}
+
+
 @pytest.fixture(name="transactions")
 def fixture_transactions():
     return pd.DataFrame(
-        {DAY: ['01.01.2018', '02.01.2018', '04.05.2018', '15.05.2018', '04.02.2019', '18.06.2019', '20.06.2019'],
-         AMOUNT: [100, 200, 300.5, -100, 10.75, -5, 10],
-         PAYER: ["VW", "Titi", "VW", "Supermarkt", "VW", "travel", "VW"]})
+        {DAY: ['01.01.2018', '02.01.2018', '04.05.2018', '15.05.2018', '04.02.2019', '18.06.2019', '20.06.2019',
+               '20.06.2019',
+               '20.06.2019'],
+         AMOUNT: [100, 200, 300.5, -100, 10.75, -5, 10, -220, -30.0],
+         PAYER: ["VW", "Titi", "VW", "Supermarkt", "VW", "travel", "VW", "travel",
+                 "Supermarkt"]
+         })
 
 
-def test_sum_all_by_month(transactions):
-    result = {AMOUNT: [300.0, 200.5, 10.75, 5.0],
-              'years': [2018, 2018, 2019, 2019],
-              'months': [1, 5, 2, 6]}
+def test_sum_all_by_month():
+    t = TransactionsValues()
+    transactions = t.values
+    result = t.amount_per_month
 
     assert result == sut.TransactionsAnalyser("all", step="monthly").sum(transactions).to_dict('list')
 
 
 def test_sum_by_month_grouped(transactions):
-    result = {'Beguenstigter/Zahlungspflichtiger':
-                  ['Titi',
-                   'VW',
-                   'Supermarkt',
-                   'VW',
-                   'VW',
-                   'VW',
-                   'travel'],
-              'Betrag': [200.0, 100.0, -100.0, 300.5, 10.75, 10.0, -5.0],
-              'month': [1, 1, 5, 5, 2, 6, 6],
-              'years': [2018, 2018, 2018, 2018, 2019, 2019, 2019]}
+    result = {'Beguenstigter/Zahlungspflichtiger': ['Titi',
+                                                    'VW',
+                                                    'Supermarkt',
+                                                    'VW',
+                                                    'VW',
+                                                    'Supermarkt',
+                                                    'VW',
+                                                    'travel'],
+              'Betrag': [200.0, 100.0, -100.0, 300.5, 10.75, -30.0, 10.0, -225.0],
+              'month': [1, 1, 5, 5, 2, 6, 6, 6],
+              'years': [2018, 2018, 2018, 2018, 2019, 2019, 2019, 2019]}
 
     assert result == sut.TransactionsAnalyser("all", step="monthly", is_grouped=True).sum(
         transactions).to_dict('list')
 
 
 def test_sum_all_the_transactions_over_the_year(transactions):
-    result = {AMOUNT: [500.5, 15.75],
-              'years': [2018, 2019]}
+    result = {'Betrag': [500.5, -234.25], 'years': [2018, 2019]}
 
     assert result == sut.TransactionsAnalyser("all").sum(transactions).to_dict('list')
 
 
 def test_retrieve_all_the_revenues_by_year_and_give_the_total(transactions):
-
     result = {'Buchungstag': [2018, 2018, 2019],
               'Beguenstigter/Zahlungspflichtiger': ['Titi', 'VW', 'VW'],
               'Betrag': [200.0, 400.5, 20.75]}
@@ -69,46 +89,20 @@ def test_get_the_revenues_for_each_year(transactions):
     assert result == sut.TransactionsAnalyser("revenues").sum(transactions).to_dict('list')
 
 
-def test_retrieve_all_the_expenses_by_year():
-    transactions = pd.DataFrame(
-        {DAY: ['01.01.2018', '02.01.2018', '04.05.2018', '15.05.2018', '04.02.2019', '18.06.2019', '20.06.2019',
-               '20.06.2019',
-               '20.06.2019'],
-         AMOUNT: [100, 200, 300.5, -100, 10.75, -5, 10, -220, -30.0],
-         PAYER: ["VW", "Titi", "VW", "Supermarkt", "VW", "travel", "VW", "travel",
-                 "Supermarkt"]
-         })
-
+def test_retrieve_all_the_expenses_by_year(transactions):
     result = {'Buchungstag': [2018, 2019, 2019],
               'Beguenstigter/Zahlungspflichtiger': ['Supermarkt', 'Supermarkt', 'travel'],
               'Betrag': [-100.0, -30.0, -225.0]}
     assert result == sut.TransactionsAnalyser("expenses", is_grouped=True).sum(transactions).to_dict('list')
 
 
-def test_get_the_expenses_for_each_year():
-    transactions = pd.DataFrame(
-        {DAY: ['01.01.2018', '02.01.2018', '04.05.2018', '15.05.2018', '04.02.2019', '18.06.2019', '20.06.2019',
-               '20.06.2019',
-               '20.06.2019'],
-         AMOUNT: [100, 200, 300.5, -100, 10.75, -5, 10, -220, -30.0],
-         PAYER: ["VW", "Titi", "VW", "Supermarkt", "VW", "travel", "VW", "travel",
-                 "Supermarkt"]
-         })
-
+def test_get_the_expenses_for_each_year(transactions):
     result = {'years': [2018, 2019],
               'Betrag': [-100, -255]}
     assert result == sut.TransactionsAnalyser("expenses").sum(transactions).to_dict('list')
 
 
-def test_selections_of_groups():
-    transactions = pd.DataFrame(
-        {DAY: ['01.01.2018', '02.01.2018', '04.05.2018', '15.05.2018', '04.02.2019', '18.06.2019', '20.06.2019',
-               '20.06.2019',
-               '20.06.2019'],
-         AMOUNT: [100, 200, 300.5, -100, 10.75, -5, 10, -220, -30.0],
-         PAYER: ["VW wolfsburg PAYMENTS EUROPE", "Titi", "VW ingolstadt", "Supermarkt", "VW", "travel", "VW", "travel",
-                 "Supermarkt"]
-         })
+def test_selections_of_groups(transactions):
     selections = ["VW", "Supermarkt"]
 
     usecase = sut.TransactionsAnalyser("all", is_grouped=True, selections=selections)
@@ -117,15 +111,9 @@ def test_selections_of_groups():
     assert len(result) > 0
 
 
-def test_catergorize():
-    transactions = pd.DataFrame(
-        {DAY: ['01.01.2018', '02.01.2018', '04.05.2018', '15.05.2018', '04.02.2019', '18.06.2019', '20.06.2019',
-               '20.06.2019',
-               '20.06.2019'],
-         AMOUNT: [100, 200, 300.5, -100, 10.75, -5, 10, -220, -30.0],
-         PAYER: ["VW", "Titi", "VW", "supermarkt", "", "travel", "VW", "travel",
-                 "Supermarkt"]
-         })
+def test_catergorize(transactions):
+    transactions[PAYER] = ["VW", "Titi", "VW", "supermarkt", "", "travel", "VW", "travel",
+                           "Supermarkt"]
 
     categories = {"salary": ["vw"], "food": ["supermarkt"]}
     categorized_data = sut.categorize(transactions, categories)
