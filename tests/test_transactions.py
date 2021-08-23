@@ -13,6 +13,7 @@ from cashflow_analyzer.transactions import TRANSACTIONS_TYPES
 DAY = sut.SCHEMA["day"]
 AMOUNT = sut.SCHEMA["amount"]
 PAYER = sut.SCHEMA["payer"]
+CATEGORIES = sut.SCHEMA["category"]
 
 
 class TransactionsValues:
@@ -45,10 +46,10 @@ def fixture_transactions():
          })
 
 
-def test_sum_all_by_month():
-    t = TransactionsValues()
-    transactions = t.values
-    result = t.amount_per_month
+def test_sum_all_by_month(transactions):
+    result = {AMOUNT: [300.0, 200.5, 10.75, -245],
+              'years': [2018, 2018, 2019, 2019],
+              'months': [1, 5, 2, 6]}
 
     assert result == sut.TransactionsAnalyser("all", step="monthly").sum(transactions).to_dict('list')
 
@@ -111,7 +112,7 @@ def test_selections_of_groups(transactions):
     assert len(result) > 0
 
 
-def test_catergorize(transactions):
+def test_categorize(transactions):
     transactions[PAYER] = ["VW", "Titi", "VW", "supermarkt", "", "travel", "VW", "travel",
                            "Supermarkt"]
 

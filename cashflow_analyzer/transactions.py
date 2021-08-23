@@ -154,3 +154,8 @@ def categorize(transactions: pd.DataFrame, categories: dict) -> pd.DataFrame:
                                       catego,
                                       result['category'])
     return result
+
+
+def rename(df: pd.DataFrame, column: str, mapping: list):
+    for selection in mapping:
+        df.loc[df[column].str.contains(selection, na=False), column] = selection

@@ -75,3 +75,10 @@ CATEGORIES = {
             "decathlon"
         ]
 }
+
+RENAME = ["weg",
+          "huk",
+          "laetita acquaviva",
+          "edeka",
+          "rewe",
+          "kaufland"]
